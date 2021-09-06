@@ -2,31 +2,34 @@ package com.tenniscourts.schedules;
 
 import com.tenniscourts.config.BaseRestController;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-
+@RestController
 @AllArgsConstructor
+@RequestMapping("/schedule")
 public class ScheduleController extends BaseRestController {
 
     private final ScheduleService scheduleService;
 
-    //TODO: implement rest and swagger
-    public ResponseEntity<Void> addScheduleTennisCourt(CreateScheduleRequestDTO createScheduleRequestDTO) {
+    @PostMapping
+    public ResponseEntity<Void> addScheduleTennisCourt(@RequestBody CreateScheduleRequestDTO createScheduleRequestDTO) {
         return ResponseEntity.created(locationByEntity(scheduleService.addSchedule(createScheduleRequestDTO.getTennisCourtId(), createScheduleRequestDTO).getId())).build();
     }
 
-    //TODO: implement rest and swagger
-    public ResponseEntity<List<ScheduleDTO>> findSchedulesByDates(LocalDate startDate,
-                                                                  LocalDate endDate) {
-        return ResponseEntity.ok(scheduleService.findSchedulesByDates(LocalDateTime.of(startDate, LocalTime.of(0, 0)), LocalDateTime.of(endDate, LocalTime.of(23, 59))));
+    @GetMapping("/startdate/{startdate}/enddate/{enddate}")
+    public ResponseEntity<List<ScheduleDTO>> findSchedulesByDates(@PathVariable(name = "startdate") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime startDate,
+                                                                  @PathVariable(name = "enddate") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime endDate) {
+        return ResponseEntity.ok(scheduleService.findSchedulesByDates(startDate, endDate));
     }
 
-    //TODO: implement rest and swagger
-    public ResponseEntity<ScheduleDTO> findByScheduleId(Long scheduleId) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ScheduleDTO> findByScheduleId(@PathVariable(name = "id") Long scheduleId) {
         return ResponseEntity.ok(scheduleService.findSchedule(scheduleId));
     }
 }
